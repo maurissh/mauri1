@@ -131,7 +131,7 @@ def process_playlist():
     # Scrive il file finale
     print("Salvataggio lista ordinata in corso...")
     with open(FILE_OUTPUT, 'w', encoding='utf-8') as f:
-        f.write("#EXTM3U\n")
+                f.write('#EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"\n')
         for ch in channels:
             f.write(f"{ch['extinf']}\n{ch['url']}\n")
             
