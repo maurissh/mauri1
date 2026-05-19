@@ -2,16 +2,14 @@ name: Aggiornamento Lista IPTV
 
 on:
   schedule:
-    # Esegue lo script ogni giorno alle 04:00 del mattino (ora UTC)
     - cron: '0 4 * * *'
   workflow_dispatch:
-    # Questo ti permette di avviare il processo anche manualmente con un clic
 
 jobs:
   update-playlist:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Cruciale: permette al bot di sovrascrivere il file nel tuo repository
+      contents: write
 
     steps:
       - name: Checkout del repository
@@ -30,7 +28,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
           git add lista_tivusat.m3u
-          # Se la lista originale non è cambiata, evita errori bloccanti
-          git commit -m "Aggiornamento automatico lista IPTV" || exit 0
+          git commit -m "Aggiornamento lista e EPG" || exit 0
+          git pull --rebase
           git push
           
