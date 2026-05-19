@@ -110,33 +110,5 @@ def process_playlist():
             clean_name = clean_channel_name(channel_name)
             
             # Assegna LCN (se non lo trova in lista, gli dà 9999 per metterlo in fondo)
-            lcn = LCN_TIVUSAT.get(clean_name, 9999)
+            lcn = LCN
             
-            # Rimuove vecchi tag tvg-chno se presenti e inietta quelli corretti
-            if 'tvg-chno="' in current_extinf:
-                current_extinf = re.sub(r'tvg-chno="\d+"', f'tvg-chno="{lcn}"', current_extinf)
-            else:
-                current_extinf = current_extinf.replace('#EXTINF:-1 ', f'#EXTINF:-1 tvg-chno="{lcn}" ')
-                
-            channels.append({
-                'lcn': lcn,
-                'extinf': current_extinf,
-                'url': line
-            })
-            current_extinf = ""
-
-    # Ordina chirurgicamente basandosi sul numero LCN assegnato
-    channels.sort(key=lambda x: x['lcn'])
-
-    # Scrive il file finale
-    print("Salvataggio lista ordinata in corso...")
-    with open(FILE_OUTPUT, 'w', encoding='utf-8') as f:
-                f.write('#EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"\n')
-        for ch in channels:
-            f.write(f"{ch['extinf']}\n{ch['url']}\n")
-            
-    print("Operazione completata con precisione satellitare.")
-
-if __name__ == "__main__":
-    process_playlist()
-    
