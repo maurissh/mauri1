@@ -77,9 +77,7 @@ LCN_TIVUSAT = {
 def clean_channel_name(name):
     """Pulisce il nome del canale rimuovendo scorie per un riconoscimento perfetto."""
     name = name.lower().strip()
-    # Rimuove tutto ciò che è tra parentesi tonde o quadre (es. [FHD], (ITA))
     name = re.sub(r'\[.*?\]|\(.*\)', '', name) 
-    # Rimuove tag comuni nei nomi IPTV
     scorie = [" fhd", " hd", " sd", " 4k", " it:", ".it"]
     for scoria in scorie:
         name = name.replace(scoria, "")
@@ -98,17 +96,56 @@ def process_playlist():
 
     channels = []
     current_extinf = ""
+    channel_index = 0
     
     for line in content:
         line = line.strip()
         if line.startswith("#EXTINF"):
             current_extinf = line
         elif line.startswith("http") and current_extinf:
-            # Estrae il nome puro del canale dopo l'ultima virgola
+            channel_index += 1
+            
+            # Estrae il nome puro del canale
             match = re.search(r',(.*?)$', current_extinf)
             channel_name = match.group(1) if match else ""
             clean_name = clean_channel_name(channel_name)
             
-            # Assegna LCN (se non lo trova in lista, gli dà 9999 per metterlo in fondo)
-            lcn = LCN
-          
+            # Estrae il numero canale originale dalla lista (se esiste)
+            orig_chno_match = re.search(r'tvg-chno="(\d+)"', current_extinf)
+            orig_chno = int(orig_chno_match.group(1)) if orig_chno_match else None
+            
+            # Assegna LCN: Tivùsat ha priorità. Se non è in Tivùsat, mantiene l'originale.
+            if clean_name in LCN_TIVUSAT:
+                final_lcn = LCN_TIVUSAT[clean_name]
+            else:
+                # Se non aveva un numero originale, gliene diamo uno progressivo alto per non fare danni
+                final_lcn = orig_chno if orig_chno is not None else (10000 + channel_index)
+            
+            # Applica il nuovo numero (o ripristina quello corretto)
+            if 'tvg-chno="' in current_extinf:
+                current_extinf = re.sub(r'tvg-chno="\d+"', f'tvg-chno="{final_lcn}"', current_extinf)
+            else:
+                current_extinf = current_extinf.replace('#EXTINF:-1 ', f'#EXTINF:-1 tvg-chno="{final_lcn}" ')
+                
+            channels.append({
+                'lcn': final_lcn,
+                'extinf': current_extinf,
+                'url': line
+            })
+            current_extinf = ""
+
+    # Ordina i canali in base al parametro finale assegnato
+    channels.sort(key=lambda x: x['lcn'])
+
+    # Scrive il file finale
+    print("Salvataggio lista ordinata in corso...")
+    with open(FILE_OUTPUT, 'w', encoding='utf-8') as f:
+        f.write('#EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"\n')
+        for ch in channels:
+            f.write(f"{ch['extinf']}\n{ch['url']}\n")
+            
+    print("Operazione completata con rispetto della numerazione originale per i canali extra.")
+
+if __name__ == "__main__":
+    process_playlist()
+    
