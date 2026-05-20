@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # =====================================================================
 #  TIVUSAT BUILDER  -  Maginet come base + sostituzione automatica
-#  Logica: per ogni canale provo prima Maginet; se lo stream e' morto
-#  passo alla fonte di soccorso successiva che risponde davvero.
+#  - Maginet = fonte prioritaria; se uno stream e' morto si passa
+#    alla prima fonte di soccorso che risponde davvero.
+#  - Nomi normalizzati: "La 7", "LA7 HD", "la7" combaciano tutti.
+#  - Numerazione LCN aggiornata al 01/04/2026.
 #  Serve la libreria requests:  pip install requests
 # =====================================================================
 
@@ -23,52 +25,112 @@ OUTPUT_FILE = "lista_tivusat.m3u"
 EPG_URL = "https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+# Mettere a False quando si gira da GitHub Actions / server estero:
+# il geo-blocking farebbe risultare "morti" gli stream italiani validi.
+# Con False non si testa nulla -> vince sempre Maginet, i soccorsi
+# riempiono solo i buchi (comportamento sicuro fuori dall'Italia).
+TEST_STREAMS = False
+
 CHECK_TIMEOUT = 8        # secondi per considerare uno stream "morto"
 MAX_WORKERS = 24         # quanti stream testo in parallelo
-KEEP_DEAD_AS_FALLBACK = True   # se NESSUNA fonte risponde, tengo comunque Maginet come ripiego
+KEEP_DEAD_AS_FALLBACK = True   # se NESSUNA fonte risponde tengo comunque il ripiego
 
-QUALITY_TAGS = ("fhd", "uhd", "hd", "sd", "4k", "h265", "h264")
+# tag di qualita' da ignorare nei nomi (NON includere "4k": serve a Rai 4K)
+QUALITY_TAGS = ("fhd", "uhd", "hd", "sd", "h265", "h264", "hevc")
 
-# LCN completa Tivusat
+# ---------------------------------------------------------------------
+#  LCN TIVUSAT  -  chiavi gia' NORMALIZZATE (minuscolo, senza spazi
+#  ne' punteggiatura). Aggiornata al 01/04/2026.
+# ---------------------------------------------------------------------
 LCN_TIVUSAT = {
-    "rai 1": 1, "rai1": 1, "rai 2": 2, "rai2": 2, "rai 3": 3, "rai3": 3,
-    "rete 4": 4, "rete4": 4, "canale 5": 5, "canale5": 5, "italia 1": 6, "italia1": 6,
-    "la7": 7, "tv8": 8, "tv 8": 8, "nove": 9,
-    "rai 4": 10, "rai4": 10, "iris": 11, "la5": 12, "rai 5": 13, "rai5": 13,
-    "rai movie": 14, "rai premium": 15, "italia 2": 16, "mediaset italia 2": 16,
-    "mediaset extra": 17, "extra": 17, "tv2000": 18, "tv 2000": 18, "cielo": 19,
-    "20 mediaset": 20, "canale 20": 20, "20": 20,
-    "rai sport": 21, "raisport": 21, "rai sport +": 21, "focus": 22, "rai storia": 23,
-    "rai news 24": 24, "rainews24": 24, "tgcom24": 25, "mediaset tgcom24": 25,
-    "rai scuola": 26, "twentyseven": 27, "27": 27, "dmax": 28, "la7d": 29, "la7 cinema": 29,
-    "we do movies": 30, "real time": 31, "qvc": 32, "food network": 33, "cine34": 34, "cine 34": 34,
-    "radio italia tv": 35, "rtl 102.5": 36, "rtl 102.5 tv": 36, "discovery": 37, "warner tv": 37,
-    "giallo": 38, "top crime": 39, "topcrime": 39, "boing": 40, "cartoonito": 41,
-    "rai gulp": 42, "rai yoyo": 43, "frisbee": 44, "k2": 46, "super!": 47, "super": 47,
-    "arte": 48, "mezzo": 49, "rds social tv": 50, "sky tg24": 50, "equ tv": 51,
-    "aci sport": 52, "sportitalia": 54, "marcopolo": 55, "hgtv": 56, "motor trend": 57,
-    "euronews italian": 58, "discovery turbo": 59, "turbo": 59,
-    "radio kiss kiss tv": 64, "radio zeta tv": 65, "radio freccia tv": 66,
-    "france 24": 69, "bbc news": 70, "al jazeera english": 71, "rai 4k": 210,
+    "rai1": 1,
+    "rai2": 2,
+    "rai3": 3,
+    "rete4": 4,
+    "canale5": 5,
+    "italia1": 6,
+    "la7": 7,
+    "tv8": 8,
+    "nove": 9,
+    "rai4": 10,
+    "iris": 11,
+    "la5": 12,
+    "rai5": 13,
+    "raimovie": 14,
+    "raipremium": 15,
+    "italia2": 16, "mediasetitalia2": 16,
+    "mediasetextra": 17, "extra": 17,
+    "tv2000": 18,
+    "cielo": 19,
+    "20": 20, "20mediaset": 20, "canale20": 20, "venti": 20,
+    "raisport": 21, "raisportpiu": 21,
+    "focus": 22,
+    "raistoria": 23,
+    "rainews24": 24, "rainews": 24,
+    "tgcom24": 25, "mediasettgcom24": 25,
+    "raiscuola": 26,
+    "twentyseven": 27, "27": 27, "27twentyseven": 27,
+    "dmax": 28, "dmaxitaly": 28,
+    "la7cinema": 29, "la7d": 29,
+    "wedotvmovies": 30, "wedomovies": 30, "wedotv": 30,
+    "realtime": 31, "realtimeitaly": 31,
+    # 32 (QVC) ELIMINATO il 01/04/2026 - LCN non piu' esistente
+    "foodnetwork": 33, "foodnetworkitaly": 33,
+    "cine34": 34,
+    "radioitaliatv": 35,
+    "rtl1025": 36, "rtl1025tv": 36,
+    "discovery": 37, "discoveryitaly": 37, "discoverychannel": 37,
+    "giallo": 38,
+    "topcrime": 39,
+    "boing": 40,
+    "cartoonito": 41,
+    "raigulp": 42,
+    "raiyoyo": 43,
+    "frisbee": 44,
+    "k2": 46,
+    "super": 47,
+    "arte": 48,
+    "mezzo": 49, "mezzotv": 49,
+    "rdssocialtv": 50, "rdssocial": 50,
+    "equtv": 51,
+    "acisport": 52, "acisporttv": 52,
+    "solocalcio": 54,           # ex Sportitalia: il 54 ora e' Solo Calcio
+    "marcopolo": 55,
+    "hgtv": 56, "hgtvitaly": 56,
+    "euronewsitalian": 58, "euronewsitaliano": 58,
+    "discoveryturbo": 59, "discoveryturboitaly": 59,
+    "wedobigstories": 60,
+    "rtl1025caliente": 62,
+    "radioitalialive": 63,
+    "radiokisskisstv": 64,
+    "radiozeta": 65, "radiozetatv": 65,
+    "radiofreccia": 66, "radiofrecciatv": 66,
+    "radiomontecarlotv": 67,
+    "virginradiotv": 68,
+    "france24": 69,
+    "bbcnews": 70, "bbcnewseurope": 70,
+    "aljazeeraenglish": 71,
+    # 4K (solo con tessera Tivusat 4K)
+    "rai4k": 210,
 }
 
-# mappa inversa LCN -> nome (solo per messaggi piu' leggibili)
-LCN_NAME = {}
-for _name, _n in LCN_TIVUSAT.items():
-    LCN_NAME.setdefault(_n, _name)
+# normalizzazione delle chiavi (sicurezza: se ne aggiungi una con spazi)
+LCN_TIVUSAT = {re.sub(r"[^a-z0-9]", "", k.lower()): v for k, v in LCN_TIVUSAT.items()}
 
 
 # --------------------------- UTILITY ---------------------------------
-def clean_channel_name(name):
-    """Normalizza il nome per matcharlo col dizionario LCN."""
+def normalize(name):
+    """Riduce un nome canale a forma canonica: minuscolo, senza tag
+    qualita', senza spazi ne' punteggiatura. 'La 7 HD' -> 'la7'."""
     name = name.lower().strip()
-    name = re.sub(r"\[.*?\]", "", name)      # [ ... ]
-    name = re.sub(r"\(.*?\)", "", name)      # ( ... )  -> non-greedy, niente over-match
-    for tag in QUALITY_TAGS:                 # togli tag qualita' come parole intere
-        name = re.sub(rf"\b{tag}\b", "", name)
-    name = name.replace(".it", "").replace("it:", "")
-    name = re.sub(r"\s+", " ", name)
-    return name.strip()
+    name = re.sub(r"\[.*?\]", " ", name)        # [ ... ]
+    name = re.sub(r"\(.*?\)", " ", name)        # ( ... )
+    name = name.replace("it:", " ").replace(".it", " ")
+    for tag in QUALITY_TAGS:                     # via i tag qualita' come parole intere
+        name = re.sub(rf"\b{tag}\b", " ", name)
+    name = re.sub(r"[^a-z0-9]", "", name)        # via spazi e punteggiatura
+    return name
 
 
 def apply_chno(extinf, lcn):
@@ -97,12 +159,13 @@ def parse_source(url):
         elif "://" in line and not line.startswith("#") and extinf:
             m = re.search(r",(.*)$", extinf)
             raw = m.group(1).strip() if m else ""
-            clean = clean_channel_name(raw)
-            if clean in LCN_TIVUSAT:
-                lcn = LCN_TIVUSAT[clean]
+            key = normalize(raw)
+            if key in LCN_TIVUSAT:
+                lcn = LCN_TIVUSAT[key]
                 is_hd = any(t in raw.lower() for t in ("hd", "fhd", "uhd", "4k"))
                 out.append({
                     "lcn": lcn,
+                    "name": raw,
                     "extinf": apply_chno(extinf, lcn),
                     "url": line,
                     "is_hd": is_hd,
@@ -122,7 +185,6 @@ def is_stream_alive(url):
         ctype = r.headers.get("Content-Type", "").lower()
         chunk = next(r.iter_content(chunk_size=2048), b"")
         r.close()
-        # se e' un manifest HLS deve contenere l'header M3U
         if url.lower().endswith(".m3u8") or "mpegurl" in ctype:
             return b"#EXTM3U" in chunk or b"#EXT" in chunk
         return len(chunk) > 0
@@ -133,6 +195,8 @@ def is_stream_alive(url):
 def test_urls(urls):
     """Testa tutti gli URL in parallelo -> dict {url: True/False}."""
     urls = list(urls)
+    if not TEST_STREAMS:
+        return {u: True for u in urls}   # nessun test: tutto considerato vivo
     results = {}
     done = 0
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
@@ -153,7 +217,7 @@ def test_urls(urls):
 def main():
     # FASE 1 - raccolta candidati (Maginet = priorita' 0, poi i soccorsi)
     print("FASE 1: raccolgo i candidati...")
-    candidates = {}   # lcn -> lista di candidati
+    candidates = {}
     for prio, src in enumerate([BASE_SOURCE] + FALLBACK_SOURCES):
         tag = "BASE (Maginet)" if prio == 0 else f"soccorso #{prio}"
         print(f"  {tag}: {src}")
@@ -161,27 +225,30 @@ def main():
             ch["priority"] = prio
             candidates.setdefault(ch["lcn"], []).append(ch)
 
-    # ordino i candidati: prima priorita' fonte, poi HD prima di SD
+    # ordino: prima priorita' fonte, poi HD prima di SD
     for lcn in candidates:
         candidates[lcn].sort(key=lambda c: (c["priority"], 0 if c["is_hd"] else 1))
 
-    # FASE 2 - testo TUTTI gli stream unici una volta sola
+    # FASE 2 - testo gli stream unici (saltato se TEST_STREAMS = False)
     all_urls = {c["url"] for lst in candidates.values() for c in lst}
-    print(f"\nFASE 2: verifico {len(all_urls)} stream unici (timeout {CHECK_TIMEOUT}s)...")
+    if TEST_STREAMS:
+        print(f"\nFASE 2: verifico {len(all_urls)} stream unici (timeout {CHECK_TIMEOUT}s)...")
+    else:
+        print(f"\nFASE 2: test disattivato (TEST_STREAMS=False) - {len(all_urls)} stream")
     alive = test_urls(all_urls)
 
     # FASE 3 - per ogni canale prendo il primo candidato VIVO
     print("\nFASE 3: scelgo la fonte migliore per ogni canale...")
     chosen = {}
-    for lcn, lst in candidates.items():
+    for lcn, lst in sorted(candidates.items()):
         live = next((c for c in lst if alive.get(c["url"])), None)
         if live:
             chosen[lcn] = live
-            if live["priority"] != 0:
-                print(f"  [~] LCN {lcn:>3} {LCN_NAME.get(lcn,''):<18} Maginet KO -> uso soccorso #{live['priority']}")
+            if live["priority"] != 0 and TEST_STREAMS:
+                print(f"  [~] LCN {lcn:>3} {live['name']:<22} Maginet KO -> soccorso #{live['priority']}")
         elif KEEP_DEAD_AS_FALLBACK:
             chosen[lcn] = lst[0]
-            print(f"  [!] LCN {lcn:>3} {LCN_NAME.get(lcn,''):<18} nessuna fonte attiva, tengo il ripiego")
+            print(f"  [!] LCN {lcn:>3} {lst[0]['name']:<22} nessuna fonte attiva, tengo il ripiego")
 
     # FASE 4 - scrittura file ordinato per LCN
     final = sorted(chosen.values(), key=lambda c: c["lcn"])
@@ -191,8 +258,11 @@ def main():
             f.write(c["extinf"] + "\n" + c["url"] + "\n")
 
     n_live = sum(1 for c in final if alive.get(c["url"]))
-    print(f"\nFatto: {len(final)} canali scritti in '{OUTPUT_FILE}' "
-          f"({n_live} verificati attivi, {len(final) - n_live} ripieghi).")
+    print(f"\nFatto: {len(final)} canali scritti in '{OUTPUT_FILE}'", end="")
+    if TEST_STREAMS:
+        print(f" ({n_live} verificati attivi, {len(final) - n_live} ripieghi).")
+    else:
+        print(".")
 
 
 if __name__ == "__main__":
