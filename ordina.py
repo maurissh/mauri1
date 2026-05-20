@@ -1,7 +1,10 @@
 import urllib.request
 import re
 
-URL_LISTA = "https://iptv-org.github.io/iptv/countries/it.m3u"
+# =====================================================================
+# SORGENTE: MAGINETWEB (Contiene Mediaset, Discovery e link HbbTV italiani)
+# =====================================================================
+URL_LISTA = "https://raw.githubusercontent.com/maginetweb-arch/TVITALIA/refs/heads/main/iptvit.m3u"
 FILE_OUTPUT = "lista_tivusat.m3u"
 
 # LCN Ufficiale Tivùsat 2026
@@ -121,7 +124,7 @@ def clean_channel_name(name):
     return name.strip()
 
 def process_playlist():
-    print("Scaricamento della lista mondiale iptv-org in corso...")
+    print("Scaricamento della lista maginetweb in corso...")
     req = urllib.request.Request(URL_LISTA, headers={'User-Agent': 'Mozilla/5.0'})
     
     try:
@@ -152,7 +155,7 @@ def process_playlist():
                 else:
                     current_extinf = current_extinf.replace('#EXTINF:-1 ', f'#EXTINF:-1 tvg-chno="{final_lcn}" ')
                 
-                # Capisce se il canale attuale è in Alta Definizione guardando il nome originale
+                # Riconoscimento Alta Definizione
                 is_hd = "hd" in original_channel_name.lower() or "fhd" in original_channel_name.lower() or "4k" in original_channel_name.lower()
                 
                 new_channel = {
@@ -164,26 +167,26 @@ def process_playlist():
                 
                 # LOGICA ANTI-DOPPIONI
                 if final_lcn in channels_dict:
-                    # Il posto è già occupato. Lo rimpiazza SOLO se il nuovo è HD e il vecchio era SD.
+                    # Rimpiazza se il nuovo è HD e il vecchio no. 
+                    # Se sono entrambi HD, tiene il primo che ha trovato (evita cloni).
                     if is_hd and not channels_dict[final_lcn]['is_hd']:
                         channels_dict[final_lcn] = new_channel
                 else:
-                    # Il posto è libero, si accomoda.
                     channels_dict[final_lcn] = new_channel
                 
             current_extinf = ""
 
-    # Estrae i canali unici dal dizionario e li ordina
+    # Estrae i canali unici e ordina
     final_channels = list(channels_dict.values())
     final_channels.sort(key=lambda x: x['lcn'])
 
-    print("Salvataggio lista ordinata e senza doppioni in corso...")
+    print("Salvataggio lista ordinata in corso...")
     with open(FILE_OUTPUT, 'w', encoding='utf-8') as f:
         f.write('#EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"\n')
         for ch in final_channels:
             f.write(f"{ch['extinf']}\n{ch['url']}\n")
             
-    print("Operazione completata. Cloni SD eliminati, lista Full HD generata.")
+    print("Operazione completata. Cloni eliminati, Mediaset recuperata.")
 
 if __name__ == "__main__":
     process_playlist()
