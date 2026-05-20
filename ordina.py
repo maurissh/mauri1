@@ -1,17 +1,11 @@
 import urllib.request
 import re
 
-# =====================================================================
-# SORGENTE: IPTV-ORG (La più stabile al mondo per i canali in chiaro)
-# =====================================================================
 URL_LISTA = "https://iptv-org.github.io/iptv/countries/it.m3u"
 FILE_OUTPUT = "lista_tivusat.m3u"
 
-# =====================================================================
-# DATABASE COMPLETO TIVUSAT - RICREAZIONE TOTALE PIATTAFORMA
-# =====================================================================
+# LCN Ufficiale Tivùsat 2026
 LCN_TIVUSAT = {
-    # --- GENERALISTE E INTRATTENIMENTO (1-20) ---
     "rai 1": 1, "rai1": 1,
     "rai 2": 2, "rai2": 2,
     "rai 3": 3, "rai3": 3,
@@ -32,8 +26,6 @@ LCN_TIVUSAT = {
     "tv2000": 18, "tv 2000": 18,
     "cielo": 19,
     "20 mediaset": 20, "canale 20": 20, "20": 20,
-
-    # --- DOCUMENTARI, STORIA E NEWS ITALIANE (21-30) ---
     "rai sport": 21, "raisport": 21, "rai sport +": 21,
     "focus": 22,
     "rai storia": 23, "raistoria": 23,
@@ -44,8 +36,6 @@ LCN_TIVUSAT = {
     "dmax": 28,
     "la7d": 29, "la7 cinema": 29,
     "we do movies": 30,
-
-    # --- LIFESTYLE, CINEMA E CULTURA (31-49) ---
     "real time": 31,
     "qvc": 32,
     "food network": 33,
@@ -64,8 +54,6 @@ LCN_TIVUSAT = {
     "super!": 47, "super": 47,
     "arte": 48,
     "mezzo": 49,
-
-    # --- SPORT, MOTORI E VIAGGI (50-59) ---
     "rds social tv": 50, "rds": 50, "sky tg24": 50, "sky tg 24": 50,
     "equ tv": 51, "equtv": 51,
     "aci sport": 52, "aci sport tv": 52,
@@ -75,8 +63,6 @@ LCN_TIVUSAT = {
     "motor trend": 57, "motortrend": 57,
     "euronews italian": 58, "euronews it": 58, "euronews ita": 58, "euronews": 58,
     "discovery turbo": 59, "turbo": 59, 
-
-    # --- IL BLOCCO MUSICALE RADIO-TV (60-69) ---
     "we do big stories": 60,
     "juwelo tv": 61, "juwelo": 61,
     "rtl 102.5 caliente": 62, "caliente": 62,
@@ -86,8 +72,6 @@ LCN_TIVUSAT = {
     "radio freccia tv": 66, "radiofreccia": 66, "radio freccia": 66,
     "radio monte carlo tv": 67, "radio monte carlo": 67, "rmc tv": 67,
     "virgin radio tv": 68, "virgin radio": 68,
-    
-    # --- IL BLOCCO NEWS INTERNAZIONALI (69-89) ---
     "france 24": 69, "france 24 english": 69,
     "bbc news": 70, "bbc news europe": 70, "bbc": 70,
     "al jazeera english": 71, "al jazeera": 71,
@@ -98,15 +82,11 @@ LCN_TIVUSAT = {
     "dw": 85, "deutsche welle": 85,
     "cgtn": 87,
     "cgtn documentary": 88,
-
-    # --- ALTA RISOLUZIONE ULTRA HD 4K (210-230) ---
     "rai 4k": 210,
     "museum 4k": 220, "museum tv": 220,
     "myzen 4k": 222, "myzen tv": 222,
     "travelxp 4k": 225, "travelxp": 225,
     "hot bird 4k": 230, "hotbird 4k": 230,
-
-    # --- TGR REGIONALI RAI 3 (301-323) ---
     "rai 3 tgr valle d'aosta": 301, "tgr valle d'aosta": 301,
     "rai 3 tgr piemonte": 302, "tgr piemonte": 302, "rai 3 piemonte": 302,
     "rai 3 tgr liguria": 303, "tgr liguria": 303, "rai 3 liguria": 303,
@@ -148,10 +128,11 @@ def process_playlist():
         with urllib.request.urlopen(req) as response:
             content = response.read().decode('utf-8').splitlines()
     except Exception as e:
-        print(f"Errore fatale in download: {e}")
+        print(f"Errore in download: {e}")
         return
 
-    channels = []
+    # Usiamo un dizionario per sovrascrivere i doppioni sullo stesso LCN
+    channels_dict = {}
     current_extinf = ""
     
     for line in content:
@@ -160,38 +141,49 @@ def process_playlist():
             current_extinf = line
         elif line.startswith("http") and current_extinf:
             match = re.search(r',(.*?)$', current_extinf)
-            channel_name = match.group(1) if match else ""
-            clean_name = clean_channel_name(channel_name)
+            original_channel_name = match.group(1) if match else ""
+            clean_name = clean_channel_name(original_channel_name)
             
-            # FILTRO ASSOLUTO: Accetta solo la piattaforma Tivùsat mappata sopra
             if clean_name in LCN_TIVUSAT:
                 final_lcn = LCN_TIVUSAT[clean_name]
                 
-                # Sostituisce o inietta l'attributo LCN corretto
                 if 'tvg-chno="' in current_extinf:
                     current_extinf = re.sub(r'tvg-chno="\d+"', f'tvg-chno="{final_lcn}"', current_extinf)
                 else:
                     current_extinf = current_extinf.replace('#EXTINF:-1 ', f'#EXTINF:-1 tvg-chno="{final_lcn}" ')
-                    
-                channels.append({
+                
+                # Capisce se il canale attuale è in Alta Definizione guardando il nome originale
+                is_hd = "hd" in original_channel_name.lower() or "fhd" in original_channel_name.lower() or "4k" in original_channel_name.lower()
+                
+                new_channel = {
                     'lcn': final_lcn,
                     'extinf': current_extinf,
-                    'url': line
-                })
+                    'url': line,
+                    'is_hd': is_hd
+                }
+                
+                # LOGICA ANTI-DOPPIONI
+                if final_lcn in channels_dict:
+                    # Il posto è già occupato. Lo rimpiazza SOLO se il nuovo è HD e il vecchio era SD.
+                    if is_hd and not channels_dict[final_lcn]['is_hd']:
+                        channels_dict[final_lcn] = new_channel
+                else:
+                    # Il posto è libero, si accomoda.
+                    channels_dict[final_lcn] = new_channel
                 
             current_extinf = ""
 
-    # Ordine sequenziale rigoroso dal numero 1 al numero 323
-    channels.sort(key=lambda x: x['lcn'])
+    # Estrae i canali unici dal dizionario e li ordina
+    final_channels = list(channels_dict.values())
+    final_channels.sort(key=lambda x: x['lcn'])
 
-    print("Salvataggio lista ordinata in corso...")
+    print("Salvataggio lista ordinata e senza doppioni in corso...")
     with open(FILE_OUTPUT, 'w', encoding='utf-8') as f:
-        # Iniezione della Guida EPG (Programmazione TV)
         f.write('#EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"\n')
-        for ch in channels:
+        for ch in final_channels:
             f.write(f"{ch['extinf']}\n{ch['url']}\n")
             
-    print("Elaborazione completata. Piattaforma Tivùsat Globale e sorgente iptv-org applicate.")
+    print("Operazione completata. Cloni SD eliminati, lista Full HD generata.")
 
 if __name__ == "__main__":
     process_playlist()
