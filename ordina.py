@@ -1,19 +1,35 @@
-import urllib.request
+#!/usr/bin/env python3
+# =====================================================================
+#  TIVUSAT BUILDER  -  Maginet come base + sostituzione automatica
+#  Logica: per ogni canale provo prima Maginet; se lo stream e' morto
+#  passo alla fonte di soccorso successiva che risponde davvero.
+#  Serve la libreria requests:  pip install requests
+# =====================================================================
+
 import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# =====================================================================
-# MOTORE IBRIDO: MAGINET COME BASE + SCRAPER COME SOCCORSO
-# =====================================================================
-FONTE_PRINCIPALE = "https://raw.githubusercontent.com/maginetweb-arch/TVITALIA/refs/heads/main/iptvit.m3u"
+import requests
 
-FONTI_SOCCORSO = [
+# ----------------------------- CONFIG --------------------------------
+BASE_SOURCE = "https://raw.githubusercontent.com/maginetweb-arch/TVITALIA/refs/heads/main/iptvit.m3u"
+
+FALLBACK_SOURCES = [
     "https://iptv-org.github.io/iptv/countries/it.m3u",
-    "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_italy.m3u8"
+    "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlists/playlist_italy.m3u8",
 ]
 
-FILE_OUTPUT = "lista_tivusat.m3u"
+OUTPUT_FILE = "lista_tivusat.m3u"
+EPG_URL = "https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"
 
-# LCN Completa Tivùsat
+HEADERS = {"User-Agent": "Mozilla/5.0"}
+CHECK_TIMEOUT = 8        # secondi per considerare uno stream "morto"
+MAX_WORKERS = 24         # quanti stream testo in parallelo
+KEEP_DEAD_AS_FALLBACK = True   # se NESSUNA fonte risponde, tengo comunque Maginet come ripiego
+
+QUALITY_TAGS = ("fhd", "uhd", "hd", "sd", "4k", "h265", "h264")
+
+# LCN completa Tivusat
 LCN_TIVUSAT = {
     "rai 1": 1, "rai1": 1, "rai 2": 2, "rai2": 2, "rai 3": 3, "rai3": 3,
     "rete 4": 4, "rete4": 4, "canale 5": 5, "canale5": 5, "italia 1": 6, "italia1": 6,
@@ -33,87 +49,151 @@ LCN_TIVUSAT = {
     "aci sport": 52, "sportitalia": 54, "marcopolo": 55, "hgtv": 56, "motor trend": 57,
     "euronews italian": 58, "discovery turbo": 59, "turbo": 59,
     "radio kiss kiss tv": 64, "radio zeta tv": 65, "radio freccia tv": 66,
-    "france 24": 69, "bbc news": 70, "al jazeera english": 71, "rai 4k": 210
+    "france 24": 69, "bbc news": 70, "al jazeera english": 71, "rai 4k": 210,
 }
 
+# mappa inversa LCN -> nome (solo per messaggi piu' leggibili)
+LCN_NAME = {}
+for _name, _n in LCN_TIVUSAT.items():
+    LCN_NAME.setdefault(_n, _name)
+
+
+# --------------------------- UTILITY ---------------------------------
 def clean_channel_name(name):
+    """Normalizza il nome per matcharlo col dizionario LCN."""
     name = name.lower().strip()
-    name = re.sub(r'\[.*?\]|\(.*\)', '', name) 
-    for scoria in [" fhd", " hd", " sd", " 4k", " it:", ".it"]:
-        name = name.replace(scoria, "")
+    name = re.sub(r"\[.*?\]", "", name)      # [ ... ]
+    name = re.sub(r"\(.*?\)", "", name)      # ( ... )  -> non-greedy, niente over-match
+    for tag in QUALITY_TAGS:                 # togli tag qualita' come parole intere
+        name = re.sub(rf"\b{tag}\b", "", name)
+    name = name.replace(".it", "").replace("it:", "")
+    name = re.sub(r"\s+", " ", name)
     return name.strip()
 
-def extract_channels(url, current_dict, is_primary):
-    try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=10) as response:
-            content = response.read().decode('utf-8').splitlines()
-    except Exception as e:
-        print(f"Errore caricamento fonte {url}: {e}")
-        return
 
-    current_extinf = ""
-    for line in content:
+def apply_chno(extinf, lcn):
+    """Imposta/sovrascrive tvg-chno con il numero Tivusat."""
+    if 'tvg-chno="' in extinf:
+        return re.sub(r'tvg-chno="\d+"', f'tvg-chno="{lcn}"', extinf)
+    return re.sub(r"(#EXTINF:-?\d+)", rf'\1 tvg-chno="{lcn}"', extinf, count=1)
+
+
+def parse_source(url):
+    """Scarica una playlist e restituisce i candidati che combaciano con la LCN."""
+    out = []
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=15)
+        r.raise_for_status()
+        lines = r.text.splitlines()
+    except Exception as e:
+        print(f"  [!] impossibile caricare {url}: {e}")
+        return out
+
+    extinf = ""
+    for line in lines:
         line = line.strip()
         if line.startswith("#EXTINF"):
-            current_extinf = line
-        elif line.startswith("http") and current_extinf:
-            match = re.search(r',(.*?)$', current_extinf)
-            original_channel_name = match.group(1) if match else ""
-            clean_name = clean_channel_name(original_channel_name)
-            
-            if clean_name in LCN_TIVUSAT:
-                final_lcn = LCN_TIVUSAT[clean_name]
-                
-                if 'tvg-chno="' in current_extinf:
-                    current_extinf = re.sub(r'tvg-chno="\d+"', f'tvg-chno="{final_lcn}"', current_extinf)
-                else:
-                    current_extinf = current_extinf.replace('#EXTINF:-1 ', f'#EXTINF:-1 tvg-chno="{final_lcn}" ')
-                
-                is_hd = "hd" in original_channel_name.lower() or "fhd" in original_channel_name.lower()
-                
-                new_channel = {
-                    'lcn': final_lcn,
-                    'extinf': current_extinf,
-                    'url': line,
-                    'is_hd': is_hd
-                }
-                
-                if is_primary:
-                    # Logica Fonte Principale: sovrascrive solo se trova un HD migliore dentro se stessa
-                    if final_lcn in current_dict:
-                        if is_hd and not current_dict[final_lcn]['is_hd']:
-                            current_dict[final_lcn] = new_channel
-                    else:
-                        current_dict[final_lcn] = new_channel
-                else:
-                    # Logica Soccorso: Entra SOLO se la sedia è vuota. Non tocca i link di Maginet.
-                    if final_lcn not in current_dict:
-                        current_dict[final_lcn] = new_channel
-                
-            current_extinf = ""
+            extinf = line
+        elif "://" in line and not line.startswith("#") and extinf:
+            m = re.search(r",(.*)$", extinf)
+            raw = m.group(1).strip() if m else ""
+            clean = clean_channel_name(raw)
+            if clean in LCN_TIVUSAT:
+                lcn = LCN_TIVUSAT[clean]
+                is_hd = any(t in raw.lower() for t in ("hd", "fhd", "uhd", "4k"))
+                out.append({
+                    "lcn": lcn,
+                    "extinf": apply_chno(extinf, lcn),
+                    "url": line,
+                    "is_hd": is_hd,
+                })
+            extinf = ""
+    return out
 
-def process_playlist():
-    channels_dict = {}
-    
-    print("FASE 1: Estrazione dalla base sicura (Maginet)...")
-    extract_channels(FONTE_PRINCIPALE, channels_dict, is_primary=True)
-    
-    print("FASE 2: Avvio scraper per tappare i buchi...")
-    for url in FONTI_SOCCORSO:
-        extract_channels(url, channels_dict, is_primary=False)
 
-    final_channels = list(channels_dict.values())
-    final_channels.sort(key=lambda x: x['lcn'])
+def is_stream_alive(url):
+    """Health-check leggero: lo stream risponde 200 e manda dei byte?"""
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=CHECK_TIMEOUT,
+                         stream=True, allow_redirects=True)
+        if r.status_code != 200:
+            r.close()
+            return False
+        ctype = r.headers.get("Content-Type", "").lower()
+        chunk = next(r.iter_content(chunk_size=2048), b"")
+        r.close()
+        # se e' un manifest HLS deve contenere l'header M3U
+        if url.lower().endswith(".m3u8") or "mpegurl" in ctype:
+            return b"#EXTM3U" in chunk or b"#EXT" in chunk
+        return len(chunk) > 0
+    except Exception:
+        return False
 
-    print(f"Salvataggio di {len(final_channels)} canali in corso...")
-    with open(FILE_OUTPUT, 'w', encoding='utf-8') as f:
-        f.write('#EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"\n')
-        for ch in final_channels:
-            f.write(f"{ch['extinf']}\n{ch['url']}\n")
-            
-    print("Tabellone completato con architettura ibrida!")
+
+def test_urls(urls):
+    """Testa tutti gli URL in parallelo -> dict {url: True/False}."""
+    urls = list(urls)
+    results = {}
+    done = 0
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
+        futs = {ex.submit(is_stream_alive, u): u for u in urls}
+        for fut in as_completed(futs):
+            u = futs[fut]
+            try:
+                results[u] = fut.result()
+            except Exception:
+                results[u] = False
+            done += 1
+            print(f"    testati {done}/{len(urls)}", end="\r")
+    print()
+    return results
+
+
+# ----------------------------- MAIN ----------------------------------
+def main():
+    # FASE 1 - raccolta candidati (Maginet = priorita' 0, poi i soccorsi)
+    print("FASE 1: raccolgo i candidati...")
+    candidates = {}   # lcn -> lista di candidati
+    for prio, src in enumerate([BASE_SOURCE] + FALLBACK_SOURCES):
+        tag = "BASE (Maginet)" if prio == 0 else f"soccorso #{prio}"
+        print(f"  {tag}: {src}")
+        for ch in parse_source(src):
+            ch["priority"] = prio
+            candidates.setdefault(ch["lcn"], []).append(ch)
+
+    # ordino i candidati: prima priorita' fonte, poi HD prima di SD
+    for lcn in candidates:
+        candidates[lcn].sort(key=lambda c: (c["priority"], 0 if c["is_hd"] else 1))
+
+    # FASE 2 - testo TUTTI gli stream unici una volta sola
+    all_urls = {c["url"] for lst in candidates.values() for c in lst}
+    print(f"\nFASE 2: verifico {len(all_urls)} stream unici (timeout {CHECK_TIMEOUT}s)...")
+    alive = test_urls(all_urls)
+
+    # FASE 3 - per ogni canale prendo il primo candidato VIVO
+    print("\nFASE 3: scelgo la fonte migliore per ogni canale...")
+    chosen = {}
+    for lcn, lst in candidates.items():
+        live = next((c for c in lst if alive.get(c["url"])), None)
+        if live:
+            chosen[lcn] = live
+            if live["priority"] != 0:
+                print(f"  [~] LCN {lcn:>3} {LCN_NAME.get(lcn,''):<18} Maginet KO -> uso soccorso #{live['priority']}")
+        elif KEEP_DEAD_AS_FALLBACK:
+            chosen[lcn] = lst[0]
+            print(f"  [!] LCN {lcn:>3} {LCN_NAME.get(lcn,''):<18} nessuna fonte attiva, tengo il ripiego")
+
+    # FASE 4 - scrittura file ordinato per LCN
+    final = sorted(chosen.values(), key=lambda c: c["lcn"])
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(f'#EXTM3U url-tvg="{EPG_URL}"\n')
+        for c in final:
+            f.write(c["extinf"] + "\n" + c["url"] + "\n")
+
+    n_live = sum(1 for c in final if alive.get(c["url"]))
+    print(f"\nFatto: {len(final)} canali scritti in '{OUTPUT_FILE}' "
+          f"({n_live} verificati attivi, {len(final) - n_live} ripieghi).")
+
 
 if __name__ == "__main__":
-    process_playlist()
-    
+    main()
