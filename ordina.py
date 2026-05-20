@@ -1,7 +1,10 @@
 import urllib.request
 import re
 
-URL_LISTA = "https://raw.githubusercontent.com/maginetweb-arch/TVITALIA/refs/heads/main/iptvit.m3u"
+# =====================================================================
+# SORGENTE: IPTV-ORG (La più stabile al mondo per i canali in chiaro)
+# =====================================================================
+URL_LISTA = "https://iptv-org.github.io/iptv/countries/it.m3u"
 FILE_OUTPUT = "lista_tivusat.m3u"
 
 # =====================================================================
@@ -130,7 +133,6 @@ LCN_TIVUSAT = {
 }
 
 def clean_channel_name(name):
-    """Pulisce la stringa rimuovendo i tag inutili (HD, FHD, parentesi, ecc.) per il match perfetto."""
     name = name.lower().strip()
     name = re.sub(r'\[.*?\]|\(.*\)', '', name) 
     scorie = [" fhd", " hd", " sd", " 4k", " it:", ".it"]
@@ -139,7 +141,7 @@ def clean_channel_name(name):
     return name.strip()
 
 def process_playlist():
-    print("Scaricamento della lista in corso...")
+    print("Scaricamento della lista mondiale iptv-org in corso...")
     req = urllib.request.Request(URL_LISTA, headers={'User-Agent': 'Mozilla/5.0'})
     
     try:
@@ -189,7 +191,7 @@ def process_playlist():
         for ch in channels:
             f.write(f"{ch['extinf']}\n{ch['url']}\n")
             
-    print("Elaborazione completata. Piattaforma Tivùsat Globale applicata.")
+    print("Elaborazione completata. Piattaforma Tivùsat Globale e sorgente iptv-org applicate.")
 
 if __name__ == "__main__":
     process_playlist()
