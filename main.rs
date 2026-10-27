@@ -336,11 +336,30 @@ fn penalita(v: &Voce) -> u32 {
         p += 5;
     }
     // server indicato con l'indirizzo IP nudo: di solito ritrasmissioni di terzi
-    let host = v.url.split("://").nth(1).unwrap_or("").split(['/', ':']).next().unwrap_or("");
+    let host = v.url.split("://").nth(1).unwrap_or("").split(['/', ':']).next().unwrap_or("").to_lowercase();
     if !host.is_empty() && host.chars().all(|c| c.is_ascii_digit() || c == '.') {
         p += 8;
     }
+    // a parita' di condizioni si preferisce il server dell'emittente
+    if !server_ufficiale(&host) {
+        p += 4;
+    }
     p
+}
+
+// Server delle emittenti (suffisso del nome). Un flusso su questi server
+// viene preferito alle ritrasmissioni di terzi dello stesso canale, che
+// possono andare a scatti o sparire. Rai e Mediaset funzionano solo da un
+// collegamento italiano.
+const SERVER_UFFICIALI: &[&str] = &[
+    ".rai.it", ".cdn.mediaset.net", "skycdn-it.akamaized.net", ".enhanced.live",
+];
+
+fn server_ufficiale(host: &str) -> bool {
+    SERVER_UFFICIALI.iter().any(|s| host == s.trim_start_matches('.') || host.ends_with(s))
+        // CDN Akamai della Rai: rai1-live, tgrbolzano-live, stream6-rai-it...
+        || (host.ends_with(".akamaized.net")
+            && (host.starts_with("rai") || host.starts_with("tgr") || host.contains("-rai-it")))
 }
 
 // ------------------------------- RETE ----------------------------------
