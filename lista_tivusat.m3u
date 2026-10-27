@@ -1,13 +1,13 @@
 #EXTM3U url-tvg="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz" x-tvg-url="https://epgshare01.online/epgshare01/epg_ripper_IT1.xml.gz"
 #EXTINF:-1 tvg-id="Rai1.it" tvg-chno="1" tvg-name="Rai 1" tvg-logo="https://i.imgur.com/CAx7yRm.png" group-title="Tivùsat",Rai 1
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RAI1/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=2606803&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="Rai2.it" tvg-chno="2" tvg-name="Rai 2" tvg-logo="https://i.imgur.com/zA0PTcs.png" group-title="Tivùsat",Rai 2
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RAI2/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308718&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="Rai3.it" tvg-chno="3" tvg-name="Rai 3" tvg-logo="https://i.imgur.com/9kuQCIi.png" group-title="Tivùsat",Rai 3
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RAI3/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=308709&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="Rete4.it" tvg-chno="4" tvg-name="Rete 4" tvg-logo="https://i.imgur.com/GWx2Fkl.png" group-title="Tivùsat",Rete 4
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://live02-seg.msf.cdn.mediaset.net/live/ch-r4/r4-clr.isml/index.m3u8
@@ -43,7 +43,7 @@ https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=395276&output=7&forc
 https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=747002&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="RaiPremium.it" tvg-chno="15" tvg-name="Rai Premium" tvg-logo="https://i.imgur.com/RKI4nFy.png" group-title="Tivùsat",Rai Premium
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RaiPremium/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=746992&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="Italia2.it" tvg-chno="16" tvg-name="Italia 2" tvg-logo="https://i.imgur.com/nq48sjO.png" group-title="Tivùsat",Italia 2
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://live02-seg.msf.cdn.mediaset.net/live/ch-i2/i2-clr.isml/index.m3u8
@@ -67,13 +67,13 @@ https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=358025&output=7&forc
 https://live02-seg.msf.cdn.mediaset.net/live/ch-fu/fu-clr.isml/index.m3u8
 #EXTINF:-1 tvg-id="RaiStoria.it" tvg-chno="23" tvg-name="Rai Storia" tvg-logo="https://i.imgur.com/K8y5q8x.png" group-title="Tivùsat",Rai Storia
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RAIStoria/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=746990&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="RaiNews24.it" tvg-chno="24" tvg-name="Rai News 24" tvg-logo="https://i.imgur.com/gdzGwB6.png" group-title="Tivùsat",Rai News 24
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RAINEWS24/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=1&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="TGCom24.it" tvg-chno="25" tvg-name="TGCom 24" tvg-logo="https://i.imgur.com/xautVD8.png" group-title="Tivùsat",TGCom 24
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/TGCOM24/Live.m3u8
+https://live02-seg.msf.cdn.mediaset.net/live/ch-kf/kf-clr.isml/index.m3u8
 #EXTINF:-1 tvg-id="Italiana.it" tvg-chno="26" tvg-name="Italiana Powered by Rai" tvg-logo="" group-title="Tivùsat",Italiana Powered by Rai
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36
 https://d3k8wzt41aflvx.cloudfront.net/RAIScuola/Live.m3u8
@@ -157,7 +157,7 @@ https://distribution.sportitalialive.it/sportitalia/sisolocalcio_abr/playlist.m3
 https://streaming.aurora.enhanced.live/live/mpc/enl0eG1mLmVncmVzcy5mZDJ2eHI=/out/v1/IT_SIMULCAST/HGTV/CMAF/index.m3u8
 #EXTINF:-1 tvg-id="RaiScuola.it" tvg-chno="57" tvg-name="Rai Scuola" tvg-logo="https://i.imgur.com/tmtJW6s.png" group-title="Digitale terrestre",Rai Scuola
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
-https://d3k8wzt41aflvx.cloudfront.net/RAIScuola/Live.m3u8
+https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=747011&output=7&forceUserAgent=rainet/4.0.5
 #EXTINF:-1 tvg-id="EuronewsItalian.fr" tvg-chno="58" tvg-name="Euronews Italian" tvg-logo="https://i.imgur.com/DUUxsO7.jpeg" group-title="Tivùsat",Euronews Italian
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://service-stitcher.clusters.pluto.tv/v1/stitch/embed/hls/channel/61b86ea479a4390007c6d5fc/master.m3u8?deviceId=channel&deviceModel=web&deviceVersion=1.0&appVersion=1.0&deviceType=rokuChannel&deviceMake=rokuChannel&deviceDNT=1&advertisingId=channel&embedPartner=rokuChannel&appName=rokuchannel&is_lat=1&bmodel=bm1&content=channel&platform=web&tags=ROKU_CONTENT_TAGS&coppa=false&content_type=livefeed&rdid=channel&genre=ROKU_ADS_CONTENT_GENRE&content_rating=ROKU_ADS_CONTENT_RATING&studio_id=viacom&channel_id=channel
