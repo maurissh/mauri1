@@ -1,0 +1,40 @@
+name: Aggiorna playlist Tivusat
+
+on:
+  schedule:
+    - cron: "17 3 * * *"   # ogni notte alle 3:17 UTC
+  workflow_dispatch:         # avvio manuale dalla scheda Actions
+
+permissions:
+  contents: write
+
+jobs:
+  aggiorna:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache della compilazione
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: rust-${{ hashFiles('Cargo.lock') }}
+
+      - name: Compila
+        run: cargo build --release
+
+      - name: Genera la playlist
+        run: ./target/release/tivusat --diagnostica --output lista_tivusat.m3u
+
+      - name: Salva se cambiata
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lista_tivusat.m3u
+          git diff --staged --quiet && exit 0
+          git commit -m "Aggiorna playlist Tivusat"
+          git pull --rebase
+          git push

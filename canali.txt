@@ -1,0 +1,256 @@
+# =====================================================================
+#  ELENCO CANALI  -  numerazione Tivusat (8 ottobre 2026) e DTT nazionale
+#  (10 settembre 2026, solo i canali che su Tivusat NON ci sono).
+#
+#  Una riga per canale, campi separati da "|":
+#    piano | LCN | nome | tvg-id EPG | alias
+#
+#  piano  T  = Tivusat          D  = digitale terrestre (solo se assente su Tivusat)
+#         T* / D* = canale internazionale: accetta flussi anche dalle liste estere
+#  LCN    numero del canale. Per i canali D si possono indicare piu' numeri
+#         separati da virgola (es. 60,560): si usa il primo non occupato da
+#         Tivusat. Se sono tutti occupati il canale va a 1000 + primo numero.
+#  tvg-id identificativo per la guida EPG (vuoto = si tiene quello della fonte)
+#  alias  altri nomi con cui il canale compare nelle fonti, separati da virgola.
+#         Si scrivono come si vuole: maiuscole, spazi, accenti e la sigla HD
+#         vengono ignorati nel confronto.
+#
+#  Per aggiornare la numerazione basta modificare questo file e ricompilare.
+# =====================================================================
+
+# ----------------------------- TIVUSAT --------------------------------
+T | 1   | Rai 1                  | Rai1.it              |
+T | 2   | Rai 2                  | Rai2.it              |
+T | 3   | Rai 3                  | Rai3.it              |
+T | 4   | Rete 4                 | Rete4.it             |
+T | 5   | Canale 5               | Canale5.it           |
+T | 6   | Italia 1               | Italia1.it           |
+T | 7   | La7                    | La7.it               |
+T | 8   | TV8                    | TV8.it               |
+T | 9   | Nove                   | Nove.it              |
+T | 10  | Rai 4                  | Rai4.it              |
+T | 11  | Iris                   | Iris.it              |
+T | 12  | La 5                   | La5.it               |
+T | 13  | Rai 5                  | Rai5.it              |
+T | 14  | Rai Movie              | RaiMovie.it          |
+T | 15  | Rai Premium            | RaiPremium.it        |
+T | 16  | Italia 2               | Italia2.it           | Mediaset Italia 2
+T | 17  | Mediaset Extra         | MediasetExtra.it     | Extra
+T | 18  | TV2000                 | TV2000.va            |
+T | 19  | Cielo                  | CieloTV.it           | Cielo TV
+T | 20  | 20 Mediaset            | 20.it                | 20, Mediaset 20, Canale 20, Venti
+T | 21  | Rai Sport              | RaiSport.it          | Rai Sport Piu, Rai Sport +
+T | 22  | Focus                  | Focus.it             | Focus TV
+T | 23  | Rai Storia             | RaiStoria.it         |
+T | 24  | Rai News 24            | RaiNews24.it         | Rai News
+T | 25  | TGCom 24               | TGCom24.it           | Mediaset TGCom 24
+T | 26  | Italiana Powered by Rai|                      | Rai Italiana, Italiana
+T | 27  | Twentyseven            | 27Twentyseven.it     | 27, 27 Twentyseven, Twenty Seven
+T | 28  | DMAX                   | DMAXItaly.it         | DMAX Italy
+T | 29  | La7 Cinema             | La7Cinema.it         | La7d
+T | 30  | We Do Movies           |                      | WeDo TV Movies, WeDo TV
+T | 31  | Real Time              | RealTimeItaly.it     | Real Time Italy
+T | 33  | Food Network           | FoodNetworkItaly.it  | Food Network Italy
+T | 34  | Cine34                 | Cine34.it            | Cine 34
+T | 35  | Radio Italia TV        | RadioItaliaTV.it     |
+T | 36  | RTL 102.5              | RTL1025TV.it         | RTL 102.5 TV
+T | 37  | Discovery              | DiscoveryChannel.it  | Discovery Channel, Discovery Italy, Discovery TV
+T | 38  | Giallo                 | Giallo.it            | Giallo TV
+T | 39  | Top Crime              | TopCrime.it          |
+T | 40  | Boing                  | BoingItaly.it        |
+T | 41  | Cartoonito             | CartoonitoItaly.it   |
+T | 42  | Rai Gulp               | RaiGulp.it           |
+T | 43  | Rai Yoyo               | RaiYoyo.it           |
+T | 47  | Super!                 | Super.it             |
+T*| 48  | Arte                   |                      | Arte TV
+T*| 49  | Mezzo                  |                      | Mezzo TV
+T | 50  | RDS Social TV          | RDSSocialTV.it       | RDS Social
+T | 51  | EQUtv                  |                      | EQU TV
+T | 52  | ACI Sport TV           |                      | ACI Sport
+T | 54  | Sportitalia Solo Calcio| SportitaliaSolocalcio.it | Solo Calcio, Sportitalia Solocalcio
+T | 55  | Marcopolo Travel TV    |                      | Marcopolo
+T | 56  | HGTV                   | HGTVItaly.it         | HGTV Italy, HGTV Home & Garden, HGTV Home & Garden TV, Home & Garden
+T*| 58  | Euronews Italian       |                      | Euronews Italiano, Euronews Italia
+T | 59  | Discovery Turbo        |                      | Turbo, Motor Trend, Discovery Turbo Italy
+T | 60  | We Do Big Stories      |                      |
+T | 62  | RTL 102.5 Caliente     |                      |
+T | 63  | Radio Italia Live      |                      |
+T | 64  | Radio Kiss Kiss TV     | KissKissTV.it        | Radio Kiss Kiss, Kiss Kiss TV
+T | 65  | Radio Zeta TV          | RadioZetaTV.it       | Radio Zeta
+T | 66  | RadioFreccia TV        | RadioFrecciaTV.it    | RadioFreccia, Radio Freccia
+T | 67  | Radio Monte Carlo TV   | RadioMonteCarloTV.it | Radio Monte Carlo, Radio Montecarlo, Radio Montecarlo TV, RMC
+T | 68  | Virgin Radio TV        | VirginRadioTV.it     | Virgin Radio
+T*| 69  | France 24 English      |                      | France 24 EN
+T*| 70  | BBC News Europe        |                      | BBC News, BBC World News
+T*| 71  | Al Jazeera English     |                      |
+T*| 72  | TRT World              |                      |
+T*| 73  | NHK World Japan        |                      | NHK World, NHK World-Japan
+T*| 74  | Freedom                |                      |
+T*| 75  | France 24 Francais     |                      | France 24 French, France 24 FR
+T | 76  | Dim TV                 |                      |
+T*| 77  | Al Jazeera             |                      | Al Jazeera Arabic
+T*| 79  | SonLife Broadcasting Network |                | SonLife, SBN
+T*| 81  | CNBC Europe            |                      |
+T*| 82  | Bloomberg TV Europe    |                      | Bloomberg Europe, Bloomberg European TV
+T*| 83  | Daystar                |                      | Daystar TV
+T*| 85  | DW English             |                      |
+T*| 86  | Euronews English       |                      |
+T*| 87  | CGTN                   |                      | CGTN English
+T*| 88  | CGTN Documentary       |                      |
+T | 89  | Senato TV              |                      | Senato, Senato Italiano
+T | 90  | Camera dei Deputati    |                      |
+T*| 91  | KBS World              |                      |
+T*| 92  | CCTV 4                 |                      | CCTV-4, CCTV 4 Europe
+T*| 94  | Svoboda TV             |                      |
+T*| 95  | Svoboda News           |                      |
+T*| 96  | Svoboda Plus           |                      |
+T*| 97  | Russia's Future        |                      |
+T*| 98  | Belarus Tomorrow       |                      |
+T*| 99  | Gordon Live            |                      |
+T | 202 | Rai Radio 2 Visual     |                      | Rai Radio 2, Rai Radio 2 Visual Radio
+T | 210 | Rai 4K                 | Rai4K.it             |
+T*| 220 | Museum 4K              |                      | Museum TV 4K, Museum TV
+T*| 222 | MyZen 4K               |                      | MyZen TV 4K, MyZen TV
+T*| 223 | Insight UHD            |                      | Insight TV, Insight TV UHD
+T*| 225 | TravelXP 4K            |                      | Travelxp 4K HDR
+T | 301 | Rai 3 TGR Valle d'Aosta|                      | Rai 3 Valle d'Aosta
+T | 302 | Rai 3 TGR Piemonte     |                      | Rai 3 Piemonte
+T | 303 | Rai 3 TGR Liguria      |                      | Rai 3 Liguria
+T | 304 | Rai 3 TGR Lombardia    |                      | Rai 3 Lombardia
+T | 305 | Rai 3 TGR Veneto       |                      | Rai 3 Veneto
+T | 306 | Rai 3 TGR Alto Adige   |                      | Rai 3 Alto Adige, Rai 3 Trentino-Alto Adige Bolzano
+T | 307 | Rai 3 TGR Trentino     |                      | Rai 3 Trentino, Rai 3 Trentino-Alto Adige Trento
+T | 308 | Rai Sudtirol           |                      | Rai Südtirol
+T | 309 | Rai 3 TGR Friuli Venezia Giulia |             | Rai 3 Friuli Venezia Giulia
+T | 310 | Rai 3 TGR FVG Bis      |                      | Rai 3 BIS FJK, Rai 3 Bis
+T | 311 | Rai 3 TGR Emilia Romagna |                    | Rai 3 Emilia Romagna
+T | 312 | Rai 3 TGR Toscana      |                      | Rai 3 Toscana
+T | 313 | Rai 3 TGR Marche       |                      | Rai 3 Marche
+T | 314 | Rai 3 TGR Umbria       |                      | Rai 3 Umbria
+T | 315 | Rai 3 TGR Lazio        |                      | Rai 3 Lazio
+T | 316 | Rai 3 TGR Abruzzo      |                      | Rai 3 Abruzzo
+T | 317 | Rai 3 TGR Molise       |                      | Rai 3 Molise
+T | 318 | Rai 3 TGR Campania     |                      | Rai 3 Campania
+T | 319 | Rai 3 TGR Puglia       |                      | Rai 3 Puglia
+T | 320 | Rai 3 TGR Basilicata   |                      | Rai 3 Basilicata
+T | 321 | Rai 3 TGR Calabria     |                      | Rai 3 Calabria
+T | 322 | Rai 3 TGR Sardegna     |                      | Rai 3 Sardegna
+T | 323 | Rai 3 TGR Sicilia      |                      | Rai 3 Sicilia
+T | 412 | Teleradio Pace         |                      | Teleradiopace
+T | 413 | Sender Neu Jerusalem   |                      |
+T | 420 | People TV Rete 7       |                      | People TV, Rete 7
+T | 422 | Telecupole             |                      |
+T | 444 | Horse TV               |                      |
+T | 445 | Padre Pio TV           |                      |
+T | 447 | BeJoy Kids             |                      | BeJoy.Kids
+T | 454 | Parole di Vita         |                      |
+T | 519 | TRM h24                |                      | TRM
+T*| 550 | San Marino RTV         |                      | RTV San Marino, San Marino TV, SMRTV
+T | 701 | Uninettuno University TV |                    | Uninettuno
+T*| 815 | Vatican Media Europa   |                      | Vatican Media
+T | 819 | Videolina              |                      |
+T | 822 | Tele Sardegna          |                      | Telesardegna
+T | 832 | TVA Vicenza            |                      |
+T | 868 | Arte In Channel        |                      | ArteIN, Arte In
+
+# ------------------ DTT NAZIONALE (assenti su Tivusat) -----------------
+D | 32           | QVC                  | | QVC Italia
+D | 41           | K2                   | |
+D | 44           | Frisbee              | |
+D | 45,545       | Boing Plus           | |
+D | 50           | Sky TG24             | |
+D | 53,141,150   | Italia 53            | | Casa Italia 53
+D | 57,146       | Rai Scuola           | RaiScuola.it |
+D | 60,560       | Sportitalia          | |
+D | 61,561       | il61                 | | il 61
+D | 62,562       | Donna TV             | | Donna Sport TV
+D | 63           | Il Sole 24 Ore TV    | | Radio24-IlSole24OreTV, IlSole24Ore TV
+D | 64           | SuperTennis          | | Super Tennis, SuperTennix
+D | 65,565       | Alma TV              | |
+D | 66,566       | Radio 105 TV         | | Radio 105
+D | 67,567       | R101 TV              | | R101
+D | 68           | BOM Channel          | |
+D | 69,569       | Deejay TV            | |
+D | 121,161      | Italia 121           | |
+D | 122          | Canale 122           | |
+D | 123          | Italia Channel       | |
+D | 124,156      | Arte Italia 124      | |
+D | 125,160      | Arte Italia 125      | |
+D | 126          | Italia 126           | |
+D | 127,148,159  | Italia 127           | |
+D | 128          | Gold TV Italia       | | Gold TV
+D | 129          | La 4 Italia          | |
+D | 130          | Gold Invest TV       | |
+D | 131          | Rete Italia          | |
+D | 132          | Lineagem             | |
+D | 134,155,164  | Italia 134           | |
+D | 135,143      | Italia 135           | |
+D | 136,142,154  | Italia 136           | |
+D | 137          | Canale 137           | |
+D | 138          | Telecampione         | | Telecampione Svizzera Italiana
+D | 139          | Deluxe 139           | |
+D | 140          | Starmarket           | |
+D | 144          | Canale 144           | |
+D | 147          | Fascino 147          | |
+D | 149          | Primaset             | |
+D | 152,228      | Tesory Channel       | |
+D | 157          | Fascino TV           | | Fascino TV 157
+D | 162,153      | Canale 162           | |
+D | 163          | Odeon 24             | | Canale 163
+D | 165          | Canale 165           | | Fascino TV 165
+D | 166          | Orler TV             | | Arte Network Orler
+D | 167          | VH1                  | |
+D | 168          | Canale 168           | |
+D | 169          | Canale 169           | |
+D | 170          | Primafree 170        | |
+D | 220          | AP Channel           | |
+D | 221          | IT Channel           | |
+D | 222          | Radio Roma Network   | |
+D | 223          | Italia Sera          | |
+D | 224          | Amici Network        | |
+D | 226          | Welcome In           | |
+D | 227          | Canale 227           | |
+D | 231          | Primafree 231        | |
+D | 232          | Match Music          | |
+D | 234          | Cusano News 7        | |
+D | 235          | Canale 235           | |
+D | 236          | MAN-GA               | | Manga
+D | 240          | Genius 240           | |
+D | 242          | Sicilia 242          | |
+D | 244          | Babel                | | Babel TV
+D | 246          | Radio 24 TV          | |
+D | 248          | 248 TV               | | TCI
+D | 249          | Matrix TV Italia     | | Matrix TV
+D | 251          | Momento TV           | |
+D | 253          | Radio Radio TV       | |
+D | 254          | ADNPlay              | | ADN Play
+D | 255          | Maria Vision         | |
+D | 256          | OnAir Italia         | |
+D | 257          | Gambero Rosso        | | Gambero Rosso TV
+D | 259          | Bike                 | | Bike Channel
+D | 260          | Urania               | |
+D | 261          | Dr Palmas TV         | |
+D | 264          | NTR Radio 264 Music TV | |
+D | 267          | ArteOra TV           | |
+D | 268          | Canale 268           | |
+D | 270          | 2Settanta TV         | |
+D | 401          | Satisfaction TV      | |
+D | 402          | My Plus TV           | |
+D | 403          | Nexum Channel        | |
+D | 410          | Malpensa 24          | |
+D | 441          | Italian Fishing TV   | |
+D | 455          | Nokep TV             | |
+D | 510          | AutoMoto             | | AutoMoto TV
+D | 715          | Radio m2o TV         | | m2o TV
+D | 739          | RTL 102.5 Traffic    | |
+D | 824          | Radio Classica TV    | |
+D | 828          | Class CNBC           | |
+D | 833          | Supersix             | | Super Six
+D | 883          | Class TV Moda        | |
+D | 888          | Caccia e Pesca       | |
+
+# ------------- SVIZZERA ITALIANA (emittenti visibili dall'Italia) -------------
+#  piano X: canali fuori da Tivusat e dal DTT nazionale, numerati da 901.
+#  RSI La 1 e La 2 non ci sono: la RSI blocca la diretta fuori dalla Svizzera
+#  e i flussi "liberi" che circolano sono ritrasmissioni di terzi.
+X*| 901          | TeleTicino           | TeleTicino.ch | Tele Ticino
