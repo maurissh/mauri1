@@ -381,6 +381,9 @@ http://fms.tvavicenza.it:1935/live/diretta_1/playlist.m3u8
 #EXTINF:-1 tvg-id="SuperSix.it" tvg-chno="833" tvg-name="Supersix" tvg-logo="https://i.imgur.com/kHSuyub.png" group-title="Digitale terrestre",Supersix
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://5db313b643fd8.streamlock.net/SUPERSIXLombardia/SUPERSIXLombardia/playlist.m3u8
+#EXTINF:-1 tvg-id="CacciaePesca.it" tvg-chno="888" tvg-name="Caccia e Pesca" tvg-logo="" group-title="Digitale terrestre",Caccia e Pesca
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
+http://102.129.186.182:81/cacciapesca/index.m3u8
 #EXTINF:-1 tvg-id="TeleTicino.ch" tvg-chno="901" tvg-name="TeleTicino" tvg-logo="https://i.imgur.com/zm2ruqz.png" group-title="Svizzera italiana",TeleTicino
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://vstream-cdn.ch/hls/teleticino_720p/index.m3u8
