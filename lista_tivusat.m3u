@@ -128,6 +128,9 @@ https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=746899&output=7&forc
 #EXTINF:-1 tvg-id="Frisbee.it" tvg-chno="44" tvg-name="Frisbee" tvg-logo="https://i.imgur.com/9y1zIAe.png" group-title="Digitale terrestre",Frisbee
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://d6m7lubks416z.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-zmbstsedxme9s/Frisbee_IT.m3u8
+#EXTINF:-1 tvg-id="BoingPlus.it" tvg-chno="45" tvg-name="Boing Plus" tvg-logo="" group-title="Digitale terrestre",Boing Plus
+#EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36
+http://95.141.36.9:8080/stream/181/index.m3u8
 #EXTINF:-1 tvg-id="Super.it" tvg-chno="47" tvg-name="Super!" tvg-logo="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d8/Super%21_logo_2015.svg/330px-Super%21_logo_2015.svg.png" group-title="Tivùsat",Super!
 #EXTVLCOPT:http-user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36
 https://495c5a85d9074f29acffeaea9e0215eb.msvdn.net/super/super_main/super_main_hbbtv/playlist.m3u8
